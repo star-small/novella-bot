@@ -52,7 +52,7 @@ async def show_help(message: Message):
 @dp.message_handler(content_types=ContentTypes.DOCUMENT)
 async def doc_handler(message: Message):
     if message.from_user.username in admins:
-        if document := message.document:
+        if document == message.document:
             await document.download(
                 destination_file="files/test1.xlsx",
             )
