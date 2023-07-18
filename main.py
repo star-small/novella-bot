@@ -1,15 +1,19 @@
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentTypes, Message
 from miscs.table import Products
+from dotenv import load_dotenv
 import time
 import traceback
+import os
 
-API_TOKEN = "5862595528:AAFr3V90pCsGr0OvQ_5mggEJLrOfA7WaTtM"
-CHANNEL_ID = "-1001884390827"
-PATH_TO_IMAGE = "/home/troy/Projects/work/novella-bot/app/media/"
-FILE_PATH = "/home/troy/Projects/work/novella-bot/app/files/test1.xlsx"
+
+load_dotenv("/etc/environment")
+API_TOKEN = os.getenv("API_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
+PATH_TO_IMAGE = os.getenv("PATH_TO_IMAGE")
+FILE_PATH = os.getenv("FILE_PATH")
+DELAY_MIN = int(os.getenv("DELAY_MIN"))
 admins = ["eukalyptusbonb0n", "Shahid228322", "Shk_turdiev", "novella_electric"]
-
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
@@ -30,7 +34,7 @@ async def post(message: types.Message):
                 await bot.send_photo(
                     CHANNEL_ID, img, caption=product.get_message_text()
                 )
-                time.sleep(3)  # 15 min
+                time.sleep(DELAY_MIN * 60)  # 15 min
                 await status_message.edit_text(f"Отправка продуктов: {post_count}")
             await message.answer("Отправка завершена")
         except BaseException as e:
@@ -54,7 +58,7 @@ async def doc_handler(message: Message):
     if message.from_user.username in admins:
         if document == message.document:
             await document.download(
-                destination_file="files/test1.xlsx",
+                destination_file=FILE_PATH,
             )
             await message.answer("Файл загружен")
     else:
