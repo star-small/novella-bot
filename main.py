@@ -19,28 +19,54 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 
-@dp.message_handler(commands=["post"])
+@dp.message_handler(commands=["post", "stop"])
 async def post(message: types.Message):
     if message.from_user.username in admins:
+        global stop_requested
+        if message.text == "/stop":
+            stop_requested = True
+            await message.answer("Отправка остановлена.")
+            return
+        else:
+            stop_requested = False
+
+        print(stop_requested)
         try:
             products = Products()
             products.load_products(FILE_PATH)  # Загрузка товаров из файла
             post_count = len(products.get_products())
-            status_message = await message.answer(f"Отправка продуктов: {post_count}")
-
+            status_message = (
+                await message.answer(
+                    f"Отправка продуктов: {post_count}\nВведите /stop для остановки."
+                )
+                if message.text == "/post"
+                else None
+            )
             for product in products.get_products():
+                if stop_requested:
+                    break
                 post_count = post_count - 1
                 img = open(PATH_TO_IMAGE + f"{product.image}", "rb")
                 await bot.send_photo(
                     CHANNEL_ID, img, caption=product.get_message_text()
                 )
-                time.sleep(DELAY_MIN * 60)  # 15 min
-                await status_message.edit_text(f"Отправка продуктов: {post_count}")
+                time.sleep(3)  # 15 min
+                await status_message.edit_text(
+                    f"Отправка продуктов: {post_count}\nВведите /stop для остановки."
+                )
             await message.answer("Отправка завершена")
         except BaseException as e:
             await message.answer(e)
     else:
         await message.answer("Вход воспрещен!")
+
+
+@dp.message_handler(commands=["stop"])
+async def stop_process(message: Message):
+    if message.from_user.username in admins:
+        await message.answer("ewfewf")
+    else:
+        await message.answer("Вход воспрещён!")
 
 
 @dp.message_handler(commands=["help", "start"])
