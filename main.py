@@ -50,7 +50,7 @@ async def post(message: types.Message):
                 await bot.send_photo(
                     CHANNEL_ID, img, caption=product.get_message_text()
                 )
-                time.sleep(3)  # 15 min
+                time.sleep(DELAY_MIN * 60)  # 15 min
                 await status_message.edit_text(
                     f"Отправка продуктов: {post_count}\nВведите /stop для остановки."
                 )
