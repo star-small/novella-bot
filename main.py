@@ -3,6 +3,7 @@ from aiogram.types import ContentTypes, Message
 from miscs.table import Products
 from dotenv import load_dotenv
 import time
+import asyncio
 import traceback
 import os
 
@@ -14,7 +15,7 @@ PATH_TO_IMAGE = os.getenv("PATH_TO_IMAGE")
 FILE_PATH = os.getenv("FILE_PATH")
 DELAY_MIN = int(os.getenv("DELAY_MIN"))
 admins = ["eukalyptusbonb0n", "Shahid228322", "Shk_turdiev", "novella_electric"]
-
+loop_completed = False
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
@@ -22,7 +23,7 @@ dp = Dispatcher(bot)
 @dp.message_handler(commands=["post", "stop"])
 async def post(message: types.Message):
     if message.from_user.username in admins:
-        global stop_requested
+        global stop_requested, loop_completed
         if message.text == "/stop":
             stop_requested = True
             await message.answer("Отправка остановлена.")
@@ -30,7 +31,6 @@ async def post(message: types.Message):
         else:
             stop_requested = False
 
-        print(stop_requested)
         try:
             products = Products()
             products.load_products(FILE_PATH)  # Загрузка товаров из файла
@@ -45,16 +45,19 @@ async def post(message: types.Message):
             for product in products.get_products():
                 if stop_requested:
                     break
+                print(stop_requested)
                 post_count = post_count - 1
                 img = open(PATH_TO_IMAGE + f"{product.image}", "rb")
                 await bot.send_photo(
                     CHANNEL_ID, img, caption=product.get_message_text()
                 )
-                time.sleep(DELAY_MIN * 60)  # 15 min
+
                 await status_message.edit_text(
                     f"Отправка продуктов: {post_count}\nВведите /stop для остановки."
                 )
-            await message.answer("Отправка завершена")
+                await asyncio.sleep(DELAY_MIN * 60)  # 15 min
+            if not stop_requested:
+                await message.answer("Отправка завершена")
         except BaseException as e:
             await message.answer(e)
     else:
