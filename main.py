@@ -64,14 +64,6 @@ async def post(message: types.Message):
         await message.answer("Вход воспрещен!")
 
 
-@dp.message_handler(commands=["stop"])
-async def stop_process(message: Message):
-    if message.from_user.username in admins:
-        await message.answer("ewfewf")
-    else:
-        await message.answer("Вход воспрещён!")
-
-
 @dp.message_handler(commands=["help", "start"])
 async def show_help(message: Message):
     if message.from_user.username in admins:
@@ -85,8 +77,8 @@ async def show_help(message: Message):
 @dp.message_handler(content_types=ContentTypes.DOCUMENT)
 async def doc_handler(message: Message):
     if message.from_user.username in admins:
-        if document == message.document:
-            await document.download(
+        if message.document != None:
+            await message.document.download(
                 destination_file=FILE_PATH,
             )
             await message.answer("Файл загружен")
