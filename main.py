@@ -13,7 +13,7 @@ API_TOKEN = os.getenv("API_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 PATH_TO_IMAGE = os.getenv("PATH_TO_IMAGE")
 FILE_PATH = os.getenv("FILE_PATH")
-DELAY_MIN = int(os.getenv("DELAY_MIN"))
+DELAY_SEC = int(os.getenv("DELAY_SEC"))
 admins = ["eukalyptusbonb0n", "Shahid228322", "Shk_turdiev", "novella_electric"]
 loop_completed = False
 bot = Bot(token=API_TOKEN)
@@ -55,7 +55,7 @@ async def post(message: types.Message):
                 await status_message.edit_text(
                     f"Отправка продуктов: {post_count}\nВведите /stop для остановки."
                 )
-                await asyncio.sleep(DELAY_MIN * 60)  # 15 min
+                await asyncio.sleep(DELAY_SEC)
             if not stop_requested:
                 await message.answer("Отправка завершена")
         except BaseException as e:
